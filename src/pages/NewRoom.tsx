@@ -1,4 +1,4 @@
-import { useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import { Button } from "../components/Button";
 
@@ -7,13 +7,7 @@ import logoImg from "../assets/images/logo.svg";
 import googleIconImg from "../assets/images/google-icon.svg";
 import "../styles/auth.scss";
 
-export function Home() {
-  const history = useHistory();
-
-  function navigateToNewRoom() {
-    history.push("/rooms/new");
-  }
-
+export function NewRoom() {
   return (
     <div id="page-auth">
       <aside>
@@ -24,15 +18,15 @@ export function Home() {
       <main>
         <div className="main-content">
           <img src={logoImg} alt="ggask logo" />
-          <button onClick={navigateToNewRoom} className="create-room">
-            <img src={googleIconImg} alt="Google logo" />
-            Create a room with Google
-          </button>
-          <div className="separator">or enter a room</div>
+          <h2>Create a new room</h2>
+
           <form action="">
-            <input type="text" placeholder="Enter room code" />
-            <Button type="submit">Enter room</Button>
+            <input type="text" placeholder="Room name" />
+            <Button type="submit">Create room</Button>
           </form>
+          <p>
+            Want to join an existing room? <Link to="/">Click here</Link>
+          </p>
         </div>
       </main>
     </div>
