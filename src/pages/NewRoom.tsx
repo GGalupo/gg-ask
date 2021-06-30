@@ -19,7 +19,7 @@ export function NewRoom() {
   async function handleCreateRoom(event: FormEvent) {
     event.preventDefault();
 
-    if (newRoom.length === 0) {
+    if (newRoom.trim() === "") {
       return;
     }
 

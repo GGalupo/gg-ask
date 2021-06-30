@@ -1,4 +1,9 @@
+import { FormEvent, useState } from "react";
 import { useParams } from "react-router-dom";
+
+import { database } from "../services/firebase";
+
+import { useAuth } from "../hooks/useAuth";
 
 import { Button } from "../components/Button";
 import { RoomCode } from "../components/RoomCode";
@@ -12,14 +17,44 @@ type RoomParams = {
 };
 
 export function Room() {
+  const { user } = useAuth();
   const params = useParams<RoomParams>();
+  const [newQuestion, setNewQuestion] = useState("");
+
+  const roomId = params.id;
+
+  async function handleSendQuestion(event: FormEvent) {
+    event.preventDefault();
+
+    if (newQuestion.trim() === "") {
+      return;
+    }
+
+    if (!user) {
+      throw new Error("You must be logged in.");
+    }
+
+    const question = {
+      content: newQuestion,
+      author: {
+        name: user.name,
+        avatar: user.avatar,
+      },
+      isHighlighted: false,
+      isAnswered: false,
+    };
+
+    await database.ref(`rooms/${roomId}/questions`).push(question);
+
+    setNewQuestion("");
+  }
 
   return (
     <div id="page-room">
       <header>
         <div className="content">
           <img src={logoImg} alt="GG Ask logo" />
-          <RoomCode code={params.id} />
+          <RoomCode code={roomId} />
         </div>
       </header>
 
@@ -29,14 +64,28 @@ export function Room() {
           <span>4 questions</span>
         </div>
 
-        <form>
-          <textarea placeholder="What do you want to ask?" />
+        <form onSubmit={handleSendQuestion}>
+          <textarea
+            placeholder="What do you want to ask?"
+            onChange={(event) => setNewQuestion(event.target.value)}
+            value={newQuestion}
+          />
 
           <div className="form-footer">
-            <span>
-              Want to send a question? <button>Login here.</button>
-            </span>
-            <Button type="submit">Send question</Button>
+            {user ? (
+              <div className="user-info">
+                <img src={user.avatar} alt={user.name} />
+                <span>{user.name}</span>
+              </div>
+            ) : (
+              <span>
+                Want to send a question? <button>Login here.</button>
+              </span>
+            )}
+
+            <Button type="submit" disabled={!user}>
+              Send question
+            </Button>
           </div>
         </form>
       </main>
