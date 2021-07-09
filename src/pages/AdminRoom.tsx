@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 
 import { database } from "../services/firebase";
 
@@ -21,15 +21,22 @@ type RoomParams = {
 export function AdminRoom() {
   // const { user } = useAuth();
   const params = useParams<RoomParams>();
+  const history = useHistory();
   const roomId = params.id;
   // const [newQuestion, setNewQuestion] = useState("");
   const { questions, title } = useRoom(roomId);
 
+  async function handleEndRoom() {
+    database.ref(`rooms/${roomId}`).update({
+      endedAt: new Date(),
+    });
+
+    history.push("/");
+  }
+
   async function handleDeleteQuestion(questionId: string) {
     if (window.confirm("Do you really want to delete this question?")) {
-      const questionRef = await database
-        .ref(`rooms/${roomId}/questions/${questionId}`)
-        .remove();
+      await database.ref(`rooms/${roomId}/questions/${questionId}`).remove();
     }
   }
 
@@ -40,7 +47,9 @@ export function AdminRoom() {
           <img src={logoImg} alt="GG Ask logo" />
           <div>
             <RoomCode code={roomId} />
-            <Button isOutlined>Encerrar sala</Button>
+            <Button isOutlined onClick={handleEndRoom}>
+              Encerrar sala
+            </Button>
           </div>
         </div>
       </header>
