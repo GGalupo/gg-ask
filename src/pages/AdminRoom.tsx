@@ -10,6 +10,8 @@ import { RoomCode } from "../components/RoomCode";
 
 import logoImg from "../assets/images/logo.svg";
 import deleteImg from "../assets/images/delete.svg";
+import checkImg from "../assets/images/check.svg";
+import answerImg from "../assets/images/answer.svg";
 
 import "../styles/room.scss";
 import { Question } from "../components/Question";
@@ -38,6 +40,18 @@ export function AdminRoom() {
     if (window.confirm("Do you really want to delete this question?")) {
       await database.ref(`rooms/${roomId}/questions/${questionId}`).remove();
     }
+  }
+
+  async function handleCheckQuestionAsAnswered(questionId: string) {
+    await database.ref(`rooms/${roomId}/questions/${questionId}`).update({
+      isAnswered: true,
+    });
+  }
+
+  async function handleHighlightQuestion(questionId: string) {
+    await database.ref(`rooms/${roomId}/questions/${questionId}`).update({
+      isHighlighted: true,
+    });
   }
 
   return (
@@ -72,7 +86,23 @@ export function AdminRoom() {
                 key={question.id}
                 content={question.content}
                 author={question.author}
+                isAnswered={question.isAnswered}
+                isHighlighted={question.isHighlighted}
               >
+                <button
+                  type="button"
+                  onClick={() => handleCheckQuestionAsAnswered(question.id)}
+                >
+                  <img src={checkImg} alt="Set question as answered." />
+                </button>
+                {!question.isAnswered && (
+                  <button
+                    type="button"
+                    onClick={() => handleHighlightQuestion(question.id)}
+                  >
+                    <img src={answerImg} alt="Highlight question." />
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => handleDeleteQuestion(question.id)}
